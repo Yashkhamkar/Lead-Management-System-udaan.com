@@ -2,10 +2,12 @@ const express = require("express");
 const dotenv = require("dotenv").config();
 const cors = require("cors");
 const db=require('./utils/db');
-
+const leadsRoutes=require('./routes/leads.routes');
+const contactsRoutes=require('./routes/contacts.routes');
+const interactionsRoutes=require('./routes/interactions.routes');
+const kamRoutes=require('./routes/kam.routes');
 const app = express();
 
-db();
 app.use(cors());
 app.use(express.json());
 
@@ -16,3 +18,8 @@ app.listen(process.env.PORT, () => {
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
+
+app.use('/api/leads',leadsRoutes);
+app.use('/api/contacts',contactsRoutes);
+app.use('/api/interactions',interactionsRoutes);
+app.use('/api/auth',kamRoutes);
