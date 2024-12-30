@@ -1,6 +1,7 @@
 import renderDashboard from "./dashboard.js";
+import renderSignup from "./signup.js";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://kam-backend-hazel.vercel.app/api";
 
 export default function renderLogin(app) {
   app.innerHTML = `
@@ -9,9 +10,15 @@ export default function renderLogin(app) {
       <input type="text" id="username" placeholder="Username">
       <input type="password" id="password" placeholder="Password">
       <button id="loginButton">Login</button>
+      <button id="signupKamButton">Sign up as KAM</button>
     </div>
   `;
 
+  const token=localStorage.getItem("token");
+  if(token){
+    renderDashboard(app);
+  }
+  
   document.getElementById("loginButton").addEventListener("click", async () => {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
@@ -40,5 +47,9 @@ export default function renderLogin(app) {
     } catch (error) {
       console.error("Login error:", error);
     }
+  });
+
+  document.getElementById("signupKamButton").addEventListener("click", () => {
+    renderSignup(app);
   });
 }

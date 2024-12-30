@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://kam-backend-hazel.vercel.app/api";
 
 export default function renderInteractions(container) {
   container.innerHTML = `
@@ -39,7 +39,7 @@ export default function renderInteractions(container) {
         alert("Please fill in all required fields.");
         return;
       }
-      
+
       try {
         const response = await fetch(`${API_BASE}/interactions`, {
           method: "POST",

@@ -1,8 +1,14 @@
 import renderLeads from "./leads.js";
 import renderContacts from "./contacts.js";
 import renderInteractions from "./interactions.js";
+import renderLogin from "./login.js";
 
 export default function renderDashboard(app) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    renderLogin(app);
+    return;
+  }
   app.innerHTML = `
     <header>
       <h1>KAM Dashboard</h1>
