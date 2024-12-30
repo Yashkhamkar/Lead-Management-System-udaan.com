@@ -35,7 +35,7 @@ export default function renderInteractions(container) {
 
       const token = localStorage.getItem("token");
 
-      if(!lead_id || !type || !notes) {
+      if (!lead_id || !type || !notes) {
         alert("Please fill in all required fields.");
         return;
       }
@@ -86,13 +86,28 @@ export default function renderInteractions(container) {
       interactionList.innerHTML = "";
 
       interactions.forEach((interaction) => {
-        const localDateTime = new Date(
-          interaction.date_of_interaction
-        ).toLocaleString();
+        const date = interaction.date_of_interaction;
+        const dateObj = new Date(date);
+
+        // Format the date (DD-MM-YYYY)
+        const day = String(dateObj.getUTCDate()).padStart(2, "0");
+        const month = String(dateObj.getUTCMonth() + 1).padStart(2, "0"); // Months are zero-based
+        const year = dateObj.getUTCFullYear();
+        const formattedDate = `${day}-${month}-${year}`;
+
+        const hours = dateObj.getUTCHours();
+        const minutes = dateObj.getUTCMinutes();
+        const period = hours >= 12 ? "PM" : "AM";
+        const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+        const formattedMinutes = minutes.toString().padStart(2, "0");
+        const formattedTime = `${formattedHours}:${formattedMinutes} ${period}`;
+
+        // Manually format the date to 12-hour format
+
         const li = document.createElement("li");
-        li.textContent = `${interaction.type} on ${localDateTime} - ${
-          interaction.notes
-        } (Follow-Up: ${interaction.follow_up ? "Yes" : "No"})`;
+        li.textContent = `${interaction.type} on ${formattedDate} at  ${formattedTime} (Follow-Up: ${
+          interaction.follow_up ? "Yes" : "No"
+        }) - ${interaction.notes}`;
         interactionList.appendChild(li);
       });
     } catch (error) {

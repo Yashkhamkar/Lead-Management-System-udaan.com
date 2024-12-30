@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const addLead = async (req, res) => {
   const id = uuidv4();
-  const { name, address, contact_number, status } = req.body;
+  const { name, address, contact_number, status, call_frequency } = req.body;
   const assigned_kam_id = req.user.id;
   const assigned_kam = req.user.username;
   if (
@@ -12,7 +12,8 @@ const addLead = async (req, res) => {
     !contact_number ||
     !status ||
     !assigned_kam ||
-    !assigned_kam_id
+    !assigned_kam_id ||
+    !call_frequency
   ) {
     res.status(400).send("Please fill in all required fields");
     return;
@@ -32,6 +33,7 @@ const addLead = async (req, res) => {
     status,
     assigned_kam,
     assigned_kam_id,
+    call_frequency,
   };
 
   const result = await db.query(sql, newLead);
