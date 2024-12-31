@@ -6,6 +6,7 @@ const leadsRoutes=require('./routes/leads.routes');
 const contactsRoutes=require('./routes/contacts.routes');
 const interactionsRoutes=require('./routes/interactions.routes');
 const kamRoutes=require('./routes/kam.routes');
+const performanceRoutes=require('./routes/performance.routes');
 const app = express();
 
 app.use(cors());
@@ -23,3 +24,4 @@ app.use('/api/leads',leadsRoutes);
 app.use('/api/contacts',contactsRoutes);
 app.use('/api/interactions',interactionsRoutes);
 app.use('/api/auth',kamRoutes);
+app.use('/api/performance',performanceRoutes);

@@ -4,9 +4,16 @@ const moment = require("moment-timezone");
 
 const addInteraction = async (req, res) => {
   const id = uuidv4();
-  const { lead_id, type, notes, follow_up, leadTimezone } = req.body;
+  const {
+    lead_id,
+    type,
+    notes,
+    follow_up,
+    leadTimezone,
+    order_value,
+    call_duration,
+  } = req.body;
   const assigned_kam_id = req.user.id;
-  console.log("requset body", req.body);
 
   if (!lead_id || !type || !notes) {
     res.status(400).send("Please fill in all required fields");
@@ -15,6 +22,14 @@ const addInteraction = async (req, res) => {
   // Validate timezone
   if (!leadTimezone || !moment.tz.names().includes(leadTimezone)) {
     res.status(400).send("Invalid or missing timezone");
+    return;
+  }
+  if (type === "Call" && (!call_duration || call_duration <= 0)) {
+    res.status(400).send("Call duration must be positive for calls");
+    return;
+  }
+  if (type === "Order" && (!order_value || order_value <= 0)) {
+    res.status(400).send("Order value must be positive for orders");
     return;
   }
 
@@ -32,17 +47,45 @@ const addInteraction = async (req, res) => {
     type,
     notes,
     follow_up,
+    call_duration,
+    order_value,
     assigned_kam_id,
   };
+  console.log(newInteraction)
+  try {
+    await db.query("INSERT INTO interactions SET ?", newInteraction);
 
-  const result = await db.query(sql, newInteraction);
-  console.log(result);
-  if (result.error) {
-    console.log("Error adding a new interaction:", result.error);
-    res.status(500).send("Failed to add a new interaction");
-    return;
+    if (type === "Call") {
+      // Update last_call_date and next_call_date for the lead
+      const leadSql = `
+        UPDATE leads
+        SET last_call_date = ?, next_call_date = DATE_ADD(?, INTERVAL call_frequency DAY)
+        WHERE id = ? AND assigned_kam_id = ?`;
+      await db.query(leadSql, [
+        date_of_interaction,
+        date_of_interaction,
+        lead_id,
+        assigned_kam_id,
+      ]);
+    }
+    if (type === "Order") {
+      const ordersSql = `INSERT INTO orders (id,lead_id, order_date, order_value, assigned_kam_id)
+      VALUES (?, ?, ?, ?,?)`;
+      const order_id = uuidv4();
+      await db.query(ordersSql, [
+        order_id,
+        lead_id,
+        date_of_interaction,
+        order_value,
+        assigned_kam_id,
+      ]);
+    }
+    
+    res.status(201).send(newInteraction);
+  } catch (error) {
+    console.error("Error adding interaction:", error);
+    res.status(500).send("Failed to add interaction");
   }
-  res.status(201).send({ id, ...newInteraction });
 };
 
 const getInteractionsByLeadId = async (req, res) => {
@@ -55,6 +98,7 @@ const getInteractionsByLeadId = async (req, res) => {
   const sql =
     "SELECT * FROM interactions WHERE lead_id = ? AND assigned_kam_id = ?";
   const result = await db.query(sql, [lead_id, assigned_kam_id]);
+  console.log(result)
   if (result.error) {
     console.log("Error getting interactions:", result.error);
     res.status(500).send("Failed to get interactions");

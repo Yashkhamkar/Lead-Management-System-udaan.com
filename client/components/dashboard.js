@@ -2,7 +2,8 @@ import renderLeads from "./leads.js";
 import renderContacts from "./contacts.js";
 import renderInteractions from "./interactions.js";
 import renderLogin from "./login.js";
-
+import renderPerformance from "./performance.js";
+import renderOrderingPatterns from "./order_and_freq.js";
 export default function renderDashboard(app) {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -19,6 +20,8 @@ export default function renderDashboard(app) {
         <button id="manageLeads">Manage Leads</button>
         <button id="manageContacts">Manage Contacts</button>
         <button id="manageInteractions">Manage Interactions</button>
+        <button id="viewPerformance">View Performance</button>
+        <button id="viewOrderAndFreq">View ordering patterns and frequency</button>
       </div>
       <div id="content"></div>
     </div>
@@ -42,6 +45,13 @@ export default function renderDashboard(app) {
     .addEventListener("click", () => {
       renderInteractions(document.getElementById("content"));
     });
+
+  document.getElementById("viewPerformance").addEventListener("click", () => {
+    renderPerformance(document.getElementById("content"));
+  });
+  document.getElementById("viewOrderAndFreq").addEventListener("click", () => {
+    renderOrderingPatterns(document.getElementById("content"));
+  });
 
   // Load default section
   renderLeads(document.getElementById("content"));

@@ -55,3 +55,104 @@ li {
   margin-bottom: 5px;
   border-radius: 4px;
 }
+/* Card Container */
+.performance-card {
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  color: white;
+  font-size: 16px;
+  text-align: left;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  line-height: 1.5;
+}
+
+/* Performance Levels */
+.performance-card.good {
+  background-color: #4caf50; /* Green for good */
+}
+
+.performance-card.average {
+  background-color: #ffeb3b; /* Yellow for medium */
+  color: #333;
+}
+
+.performance-card.bad {
+  background-color: #f44336; /* Red for bad */
+}
+/* Ordering Patterns Page */
+/* Container Styling */
+.ordering-patterns-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Title Styling */
+.ordering-title {
+  text-align: center;
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Input Field Styling */
+.ordering-input {
+  display: block;
+  margin: 20px auto;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 90%;
+  max-width: 400px;
+}
+
+/* Button Styling */
+.ordering-button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.ordering-button:hover {
+  background-color: #0056b3;
+}
+
+/* Frequency Text Styling */
+.frequency-container {
+  margin: 20px auto;
+  text-align: center;
+}
+
+.frequency-text {
+  font-size: 18px;
+  font-weight: bold;
+  color: #4caf50; /* Green for good readability */
+  margin-bottom: 20px;
+}
+
+/* Chart Container */
+.charts-container {
+  margin: 20px auto;
+  position: relative;
+  width: 100%;
+  height: 400px; /* Increased chart size */
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: 100%;
+}

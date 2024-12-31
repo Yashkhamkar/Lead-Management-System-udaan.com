@@ -37,6 +37,7 @@ const addLead = async (req, res) => {
   };
 
   const result = await db.query(sql, newLead);
+  console.log(result);
   if (result.error) {
     console.log("Error adding a new lead:", result.error);
     res.status(500).send("Failed to add a new lead");
@@ -113,4 +114,7 @@ const updateLead = async (req, res) => {
   }
   res.status(200).send({ id, ...updatedLead });
 };
+
+
+
 module.exports = { addLead, getAllLeads, updateLead, getLeadById };

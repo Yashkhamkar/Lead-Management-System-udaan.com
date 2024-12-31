@@ -10,6 +10,8 @@ export default function renderInteractions(container) {
     <input type="text" id="interactionLead" placeholder="Lead ID">
     <input type="text" id="interactionType" placeholder="Type (e.g., Call, Visit)">
     <input type="text" id="interactionNotes" placeholder="Notes">
+    <input type="number" id="interactionDuration" placeholder="Duration (in minutes)">
+    <input type="number" id="interactionOrderValue" placeholder="Order value (optional)">
     <select id="interactionFollowUp">
       <option value="true">Follow-Up Required</option>
       <option value="false">No Follow-Up Required</option>
@@ -29,17 +31,35 @@ export default function renderInteractions(container) {
       const notes = document.getElementById("interactionNotes").value;
       const follow_up =
         document.getElementById("interactionFollowUp").value === "true";
+      const call_duration = document.getElementById(
+        "interactionDuration"
+      ).value;
+      const order_value = document.getElementById(
+        "interactionOrderValue"
+      ).value;
 
       // Retrieve the user's device timezone
       const leadTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const token = localStorage.getItem("token");
 
-      if (!lead_id || !type || !notes) {
+      if (!lead_id || !type || !notes ) {
         alert("Please fill in all required fields.");
         return;
       }
-
+      if(!leadTimezone){
+        alert("Failed to get timezone. Please check your device settings.");
+        return;
+      }
+      console.log(leadTimezone);
+      if (type === "Call" && (!call_duration || call_duration <= 0)) {
+        alert("Call duration must be positive for calls");
+        return;
+      }
+      if (type === "Order" && (!order_value || order_value <= 0)) {
+        alert("Order value must be positive for orders");
+        return;
+      }
       try {
         const response = await fetch(`${API_BASE}/interactions`, {
           method: "POST",
@@ -53,6 +73,8 @@ export default function renderInteractions(container) {
             notes,
             follow_up,
             leadTimezone,
+            call_duration,
+            order_value,
           }),
         });
 
@@ -105,7 +127,9 @@ export default function renderInteractions(container) {
         // Manually format the date to 12-hour format
 
         const li = document.createElement("li");
-        li.textContent = `${interaction.type} on ${formattedDate} at  ${formattedTime} (Follow-Up: ${
+        li.textContent = `${
+          interaction.type
+        } on ${formattedDate} at  ${formattedTime} (Follow-Up: ${
           interaction.follow_up ? "Yes" : "No"
         }) - ${interaction.notes}`;
         interactionList.appendChild(li);

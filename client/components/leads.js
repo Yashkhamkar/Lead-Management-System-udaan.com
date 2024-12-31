@@ -9,6 +9,7 @@ export default function renderLeads(container) {
     <input type="text" id="leadAddress" placeholder="Address">
     <input type="text" id="leadContact" placeholder="Contact Number">
     <input type="text" id="leadStatus" placeholder="Status (New/Active/Inactive)">
+    <input type="number" id="leadFreq" placeholder="Days">
     <button id="addLeadButton">Add Lead</button>
   `;
 
@@ -21,6 +22,7 @@ export default function renderLeads(container) {
       const address = document.getElementById("leadAddress").value;
       const contact_number = document.getElementById("leadContact").value;
       const status = document.getElementById("leadStatus").value;
+      const call_frequency = document.getElementById("leadFreq").value;
 
       const token = localStorage.getItem("token");
 
@@ -41,6 +43,7 @@ export default function renderLeads(container) {
             address,
             contact_number,
             status,
+            call_frequency
           }),
         });
 
@@ -64,11 +67,17 @@ export default function renderLeads(container) {
       });
 
       const leads = await response.json();
+      console.log(leads);
       const leadList = document.getElementById("leadList");
       leadList.innerHTML = "";
 
+
       leads.forEach((lead) => {
         const li = document.createElement("li");
+        var total_order_value = lead.total_order_value;
+        if (total_order_value==null||total_order_value==undefined) {
+          total_order_value = 0;
+        }
         li.innerHTML = `
           <div>
             <span>${lead.name} - ${lead.status}</span>
@@ -78,6 +87,7 @@ export default function renderLeads(container) {
               <p><strong>Address:</strong> ${lead.address}</p>
               <p><strong>Contact:</strong> ${lead.contact_number}</p>
               <p><strong>Id:</strong> ${lead.id}</p>
+              <p><strong>Total order value:</strong> ${total_order_value}</p>
             </details>
           </div>
         `;
