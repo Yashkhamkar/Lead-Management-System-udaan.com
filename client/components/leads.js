@@ -31,7 +31,7 @@ export default function renderLeads(container) {
       }
 
       try {
-        const response = await fetch(`${API_BASE}/leads`, {
+        const response = await fetch(`${API_BASE}/leads/addLeads`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export default function renderLeads(container) {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`${API_BASE}/leads`, {
+      const response = await fetch(`${API_BASE}/leads/getLeads`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
