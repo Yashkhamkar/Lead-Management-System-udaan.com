@@ -58,6 +58,11 @@ export default function renderContacts(container) {
     const lead_id = document.getElementById("leadId").value;
     const token = localStorage.getItem("token");
 
+    if (!lead_id) {
+      alert("Please enter a lead ID.");
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_BASE}/contacts/leads/${lead_id}`, {
         headers: { Authorization: `Bearer ${token}` },
