@@ -1,5 +1,5 @@
 import renderDashboard from "./dashboard.js";
-const API_BASE = "https://kam-backend-hazel.vercel.app/api";
+const API_BASE = "https://kam-backend-chi3rk7y5-yashkhamkars-projects.vercel.app/api";
 
 export default function renderSignup(app) {
   app.innerHTML = `
