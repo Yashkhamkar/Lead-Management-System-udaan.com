@@ -1,7 +1,7 @@
 import renderDashboard from "./dashboard.js";
 import renderSignup from "./signup.js";
 
-const API_BASE = "https://kam-backend-2.vercel.app/api";
+const API_BASE = "https://lead-management-system-udaan-com.onrender.com/api/";
 
 export default function renderLogin(app) {
   app.innerHTML = `
