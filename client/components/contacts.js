@@ -46,7 +46,6 @@ export default function renderContacts(container) {
 
         if (response.ok) {
           alert("Contact added!");
-          fetchContacts();
         } else {
           alert("Failed to add contact.");
         }

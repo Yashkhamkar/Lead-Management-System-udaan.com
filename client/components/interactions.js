@@ -80,7 +80,6 @@ export default function renderInteractions(container) {
 
         if (response.ok) {
           alert("Interaction added!");
-          fetchInteractions();
         } else {
           const errorText = await response.text();
           alert(errorText);
