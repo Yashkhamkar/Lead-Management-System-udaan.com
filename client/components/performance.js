@@ -1,4 +1,4 @@
-const API_BASE = "https://lead-management-system-udaan-com.onrender.com/api/";
+const API_BASE = "https://lead-management-system-udaan-com.onrender.com/api";
 
 export default function renderPerformance(container) {
   container.innerHTML = `

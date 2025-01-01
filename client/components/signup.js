@@ -1,5 +1,5 @@
 import renderDashboard from "./dashboard.js";
-const API_BASE = "https://lead-management-system-udaan-com.onrender.com/api/";
+const API_BASE = "https://lead-management-system-udaan-com.onrender.com/api";
 
 export default function renderSignup(app) {
   app.innerHTML = `
