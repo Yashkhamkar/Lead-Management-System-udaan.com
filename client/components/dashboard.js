@@ -5,6 +5,7 @@ import renderLogin from "./login.js";
 import renderPerformance from "./performance.js";
 import renderOrderingPatterns from "./order_and_freq.js";
 import renderCallsToday from "./todaysCalls.js";
+import renderTransferLeadPage from "./lead_transfer.js";
 export default function renderDashboard(app) {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -12,20 +13,21 @@ export default function renderDashboard(app) {
     return;
   }
   app.innerHTML = `
-    <header>
+    <header class="dashboard-header">
       <h1>KAM Dashboard</h1>
+      <button id="logoutButton" class="btn-logout">Logout</button>
     </header>
-    <div class="container">
-      <button id="logoutButton">Logout</button>
-      <div id="navButtons">
-        <button id="manageLeads">Manage Leads</button>
-        <button id="manageContacts">Manage Contacts</button>
-        <button id="manageInteractions">Manage Interactions</button>
-        <button id="viewPerformance">View Performance</button>
-        <button id="viewOrderAndFreq">View ordering patterns and frequency</button>
-        <button id="viewTodaysCalls">View Todays calls</button>
-      </div>
-      <div id="content"></div>
+    <div class="dashboard-container">
+      <nav class="dashboard-nav">
+        <button id="manageLeads" class="nav-button">Manage Leads</button>
+        <button id="manageContacts" class="nav-button">Manage Contacts</button>
+        <button id="manageInteractions" class="nav-button">Manage Interactions</button>
+        <button id="viewPerformance" class="nav-button">View Performance</button>
+        <button id="viewOrderAndFreq" class="nav-button">Ordering Patterns</button>
+        <button id="viewTodaysCalls" class="nav-button">Today's Calls</button>
+        <button id="transferLead" class="nav-button">Transfer Lead</button>
+      </nav>
+      <main id="content" class="dashboard-content"></main>
     </div>
   `;
 
@@ -56,6 +58,9 @@ export default function renderDashboard(app) {
   });
   document.getElementById("viewTodaysCalls").addEventListener("click", () => {
     renderCallsToday(document.getElementById("content"));
+  });
+  document.getElementById("transferLead").addEventListener("click", () => {
+    renderTransferLeadPage(document.getElementById("content"));
   });
 
   // Load default section
