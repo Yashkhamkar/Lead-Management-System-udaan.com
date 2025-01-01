@@ -36,7 +36,7 @@ export default function renderLogin(app) {
       });
 
       if (!response.ok) {
-        alert("Login failed!");
+        alert("Login failed! Wrong username or password.");
         return;
       }
 
