@@ -71,10 +71,6 @@ export default function renderLeads(container) {
 
       leads.forEach((lead) => {
         const li = document.createElement("li");
-        var total_order_value = lead.total_order_value;
-        if (total_order_value==null||total_order_value==undefined) {
-          total_order_value = 0;
-        }
         li.innerHTML = `
           <div>
             <span>${lead.name} - ${lead.status}</span>
@@ -84,7 +80,6 @@ export default function renderLeads(container) {
               <p><strong>Address:</strong> ${lead.address}</p>
               <p><strong>Contact:</strong> ${lead.contact_number}</p>
               <p><strong>Id:</strong> ${lead.id}</p>
-              <p><strong>Total order value:</strong> ${total_order_value}</p>
             </details>
           </div>
         `;
