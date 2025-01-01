@@ -92,7 +92,11 @@ export default function renderInteractions(container) {
   async function fetchInteractions() {
     const lead_id = document.getElementById("interactionLeadId").value;
     const token = localStorage.getItem("token");
-
+    if (!lead_id) {
+      alert("Please enter a lead ID.");
+      return;
+    }
+    
     try {
       const response = await fetch(`${API_BASE}/interactions/${lead_id}`, {
         headers: { Authorization: `Bearer ${token}` },
