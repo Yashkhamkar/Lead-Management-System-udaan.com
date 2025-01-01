@@ -34,12 +34,12 @@ export default function renderCallsToday(container) {
               <strong>${lead.name}</strong>
               <p><strong>Last Call Date & Time:</strong> ${
                 lead.last_call_date
-                  ? formatDateTimeToUserTimezone(lead.last_call_date)
+                  ? formatDateTime(lead.last_call_date)
                   : "Not Available"
               }</p>
               <p><strong>Today's Call Time:</strong> ${
                 lead.next_call_date
-                  ? formatTimeToUserTimezone(lead.next_call_date)
+                  ? formatTime(lead.next_call_date)
                   : "Not Available"
               }</p>
               <p><strong>Contact:</strong> ${lead.contact_number}</p>
@@ -57,19 +57,38 @@ export default function renderCallsToday(container) {
     }
   }
 
-  // Function to format date and time (MM/DD/YYYY, HH:MM:SS AM/PM) for last call
-  function formatDateTimeToUserTimezone(dateString) {
-    const date = new Date(dateString); // Parse UTC date string into a Date object
-    return date.toLocaleString("en-US", {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    });
+  // Function to format date and time (YYYY-MM-DD HH:MM:SS AM/PM) for Last Call
+  function formatDateTime(dateString) {
+    const date = new Date(dateString);
+
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+
+    let hours = date.getUTCHours();
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+
+    const amPm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // Convert to 12-hour format
+
+    return `${year}-${month}-${day} ${String(hours).padStart(
+      2,
+      "0"
+    )}:${minutes}:${seconds} ${amPm}`;
   }
 
-  // Function to extract time only (HH:MM:SS AM/PM) for today's call
-  function formatTimeToUserTimezone(dateString) {
-    const date = new Date(dateString); // Parse UTC date string into a Date object
-    return date.toLocaleTimeString("en-US", {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    });
+  // Function to extract time only (HH:MM:SS AM/PM) for Today's Call
+  function formatTime(dateString) {
+    const date = new Date(dateString);
+
+    let hours = date.getUTCHours();
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+
+    const amPm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // Convert to 12-hour format
+
+    return `${String(hours).padStart(2, "0")}:${minutes}:${seconds} ${amPm}`;
   }
 }
