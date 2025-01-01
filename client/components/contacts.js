@@ -60,7 +60,7 @@ export default function renderContacts(container) {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(`${API_BASE}/contacts/${lead_id}`, {
+      const response = await fetch(`${API_BASE}/contacts/leads/${lead_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

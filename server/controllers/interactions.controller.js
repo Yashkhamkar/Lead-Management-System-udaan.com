@@ -59,7 +59,7 @@ const addInteraction = async (req, res) => {
       // Update last_call_date and next_call_date for the lead
       const leadSql = `
         UPDATE leads
-        SET last_call_date = ?, next_call_date = DATE_ADD(?, INTERVAL call_frequency DAY)
+        SET last_call_date = ?, next_call_date = DATE_ADD(?, INTERVAL call_frequency DAY), status = 'Active'
         WHERE id = ? AND assigned_kam_id = ?`;
       await db.query(leadSql, [
         date_of_interaction,
