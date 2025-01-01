@@ -50,9 +50,13 @@ const getContactsByLeadId = async (req, res) => {
   }
   const sql = "SELECT * FROM contacts WHERE lead_id=? AND assigned_kam_id=?";
   const result = await connection.query(sql, [lead_id, assigned_kam_id]);
+  if (result.length === 0) {
+    res.status(404).send("Contacts not found for this lead");
+    return;
+  }
   if (result.error) {
     console.log("Error getting contacts:", result.error);
-    res.status(500).send("Failed to get contacts");
+    res.status(500).send(result.error);
     return;
   }
   res.status(200).send(result);
@@ -85,6 +89,7 @@ const updateContact = async (req, res) => {
 const getLeadsRequiringCallsToday = async (req, res) => {
   const assigned_kam_id = req.user.id; // Get the KAM ID from the logged-in user
   const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+  
   const sql = `
         SELECT 
           id, 
@@ -95,16 +100,15 @@ const getLeadsRequiringCallsToday = async (req, res) => {
           next_call_date
         FROM leads
         WHERE assigned_kam_id = ? 
-          AND (DATE(next_call_date) = DATE(?) OR last_call_date IS NOT NULL)
+          AND DATE(next_call_date) = DATE(?) 
         ORDER BY next_call_date
       `;
 
   try {
-    // Pass the full date-time string for proper matching
-    const results = await connection.query(sql, [assigned_kam_id, new Date()]);
+    const results = await connection.query(sql, [assigned_kam_id, today]);
 
     if (results.length === 0) {
-      res.status(200).send([]);
+      res.status(200).send([]); // No leads requiring calls today
       return;
     }
 
@@ -114,6 +118,7 @@ const getLeadsRequiringCallsToday = async (req, res) => {
     res.status(500).send("Failed to fetch leads requiring calls today.");
   }
 };
+
 
 module.exports = {
   addContact,

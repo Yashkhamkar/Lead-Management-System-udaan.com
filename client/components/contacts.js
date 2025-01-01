@@ -65,7 +65,8 @@ export default function renderContacts(container) {
       });
 
       if (!response.ok) {
-        alert("Failed to fetch contacts.");
+        const errorText = await response.text();
+        alert(errorText);
         return;
       }
 
