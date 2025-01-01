@@ -1,4 +1,4 @@
-const API_BASE = "https://lead-management-system-udaan-com.onrender.com/api";
+const API_BASE = "https://kam-server-69.vercel.app/api";
 
 export default function renderContacts(container) {
   container.innerHTML = `
