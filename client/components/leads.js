@@ -21,12 +21,11 @@ export default function renderLeads(container) {
       const name = document.getElementById("leadName").value;
       const address = document.getElementById("leadAddress").value;
       const contact_number = document.getElementById("leadContact").value;
-      const status = document.getElementById("leadStatus").value;
       const call_frequency = document.getElementById("leadFreq").value;
 
       const token = localStorage.getItem("token");
 
-      if (!name || !address || !contact_number || !status) {
+      if (!name || !address || !contact_number ) {
         alert("Please fill in all required fields.");
         return
       }
@@ -42,7 +41,6 @@ export default function renderLeads(container) {
             name,
             address,
             contact_number,
-            status,
             call_frequency
           }),
         });
