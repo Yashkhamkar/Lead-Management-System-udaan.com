@@ -5,7 +5,7 @@ export default function renderLeads(container) {
     <h2>Leads</h2>
     <ul id="leadList"></ul>
     <h2>Add New Lead</h2>
-    <input type="text" id="leadName" placeholder="Restaurant Name">
+    <input type="text" id="leadName" placeholder="Lead Name">
     <input type="text" id="leadAddress" placeholder="Address">
     <input type="text" id="leadContact" placeholder="Contact Number">
     <input type="text" id="leadStatus" placeholder="Status (New/Active/Inactive)">
