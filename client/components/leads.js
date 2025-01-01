@@ -30,7 +30,7 @@ export default function renderLeads(container) {
       }
 
       try {
-        const response = await fetch(`${API_BASE}/leads/addLeads`, {
+        const response = await fetch(`${API_BASE}/leads/addLead`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
