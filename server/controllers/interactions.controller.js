@@ -99,6 +99,10 @@ const getInteractionsByLeadId = async (req, res) => {
     "SELECT * FROM interactions WHERE lead_id = ? AND assigned_kam_id = ?";
   const result = await db.query(sql, [lead_id, assigned_kam_id]);
   console.log(result)
+  if (result.length === 0) {
+    res.status(404).send("Interactions not found for this lead");
+    return;
+  }
   if (result.error) {
     console.log("Error getting interactions:", result.error);
     res.status(500).send("Failed to get interactions");

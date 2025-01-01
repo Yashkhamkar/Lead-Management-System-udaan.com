@@ -82,7 +82,8 @@ export default function renderInteractions(container) {
           alert("Interaction added!");
           fetchInteractions();
         } else {
-          alert("Failed to add interaction.");
+          const errorText = await response.text();
+          alert(errorText);
         }
       } catch (error) {
         console.error("Error adding interaction:", error);
@@ -97,9 +98,11 @@ export default function renderInteractions(container) {
       const response = await fetch(`${API_BASE}/interactions/${lead_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log(response);
 
       if (!response.ok) {
-        alert("Failed to fetch interactions.");
+        const errorText = await response.text();
+        alert(errorText);
         return;
       }
 

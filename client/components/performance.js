@@ -20,15 +20,13 @@ export default function renderPerformance(container) {
       }
 
       try {
-        const response = await fetch(
-          `${API_BASE}/performance/${leadId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
+        const response = await fetch(`${API_BASE}/performance/${leadId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("Response:", response);
         if (!response.ok) {
-          alert("Failed to fetch performance data.");
+          const error = await response.text();
+          alert(error);
           return;
         }
 
