@@ -8,7 +8,6 @@ export default function renderLeads(container) {
     <input type="text" id="leadName" placeholder="Lead Name">
     <input type="text" id="leadAddress" placeholder="Address">
     <input type="text" id="leadContact" placeholder="Contact Number">
-    <input type="text" id="leadStatus" placeholder="Status (New/Active/Inactive)">
     <input type="number" id="leadFreq" placeholder="Days">
     <button id="addLeadButton">Add Lead</button>
   `;
