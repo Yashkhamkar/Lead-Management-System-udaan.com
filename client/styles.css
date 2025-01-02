@@ -256,6 +256,9 @@ input:focus {
 }
 
 .lead-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 15px;
   border: 1px solid #ccc;
   margin-bottom: 10px;
@@ -266,6 +269,17 @@ input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+}
+
+.lead-details h4 {
+  flex-grow: 1;
+  margin: 0;
+  padding-right: 10px; /* Reduced padding to move Edit button closer */
+}
+
+.lead-details .btn-secondary {
+  margin-left: 10px; /* Adjusted margin to bring Edit closer to text */
 }
 
 .btn-primary {
@@ -286,17 +300,11 @@ input:focus {
   border-radius: 5px;
 }
 
-.edit-lead-form {
-  margin-top: 20px;
+details {
+  margin-top: 10px;
 }
 
-.form-group {
-  margin-bottom: 15px;
-}
-
-input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+details summary {
+  cursor: pointer;
+  font-weight: bold;
 }
