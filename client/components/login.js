@@ -1,7 +1,7 @@
 import renderDashboard from "./dashboard.js";
 import renderSignup from "./signup.js";
 
-const API_BASE = "https://kam-backend-phi.vercel.app/api";
+const API_BASE = "https://kam-server-1.vercel.app/api";
 
 export default function renderLogin(app) {
   app.innerHTML = `
