@@ -3,16 +3,16 @@ const { v4: uuidv4 } = require("uuid");
 
 const addLead = async (req, res) => {
   const id = uuidv4();
-  const { name, address, contact_number, call_frequency } = req.body;
+  const { name, address, contact_number, call_frequency, timezone } =
+    req.body;
   const assigned_kam_id = req.user.id;
   const assigned_kam = req.user.username;
   if (
     !name ||
     !address ||
     !contact_number ||
-    !assigned_kam ||
-    !assigned_kam_id ||
-    !call_frequency
+    !call_frequency ||
+    !timezone
   ) {
     res.status(400).send("Please fill in all required fields");
     return;
@@ -29,6 +29,7 @@ const addLead = async (req, res) => {
     name,
     address,
     contact_number,
+    timezone,
     status,
     assigned_kam,
     assigned_kam_id,
@@ -134,7 +135,7 @@ const changeKAM = async (req, res) => {
 
     // Update KAM for the lead
     const updateLeadQuery = `UPDATE leads SET assigned_kam_id = ?,assigned_kam=? WHERE id = ?`;
-    await db.query(updateLeadQuery, [new_kam_id, new_kam,lead_id]);
+    await db.query(updateLeadQuery, [new_kam_id, new_kam, lead_id]);
 
     // Update KAM for associated contacts, interactions, and orders
     const updateContactsQuery = `UPDATE contacts SET assigned_kam_id = ? WHERE lead_id = ?`;

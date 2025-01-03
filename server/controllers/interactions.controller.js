@@ -15,35 +15,55 @@ const addInteraction = async (req, res) => {
   } = req.body;
   const assigned_kam_id = req.user.id;
 
-  if (!lead_id || !type || !notes) {
+  console.log(req.body);
+  if (!lead_id || !type || !notes || !leadTimezone) {
     res.status(400).send("Please fill in all required fields");
+    console.log(req.body);
     return;
   }
-  // Validate timezone
-  if (!leadTimezone || !moment.tz.names().includes(leadTimezone)) {
+
+  if (!moment.tz.names().includes(leadTimezone)) {
     res.status(400).send("Invalid or missing timezone");
     return;
   }
+
   if (type === "Call" && (!call_duration || call_duration <= 0)) {
     res.status(400).send("Call duration must be positive for calls");
     return;
   }
+
   if (type === "Order" && (!order_value || order_value <= 0)) {
     res.status(400).send("Order value must be positive for orders");
     return;
   }
 
-  // Set the date with the timezone
   const date_of_interaction = moment()
     .tz(leadTimezone)
     .format("YYYY-MM-DDTHH:mm:ssZ");
+  const utcTime = moment().utc().format("YYYY-MM-DDTHH:mm:ssZ");
+  console.log("Date of interaction:", date_of_interaction);
+  console.log("UTC time:", utcTime);
 
-  // const date_of_interaction = moment().tz(leadTimezone).format();
+  if (type === "Call") {
+    const businessStartHour = 9; // 9 AM
+    const businessEndHour = 17; // 5 PM
+    const nowInLeadTimezone = moment().tz(leadTimezone);
+    const leadHour = nowInLeadTimezone.hour();
+    console.log("Lead hour:", leadHour);
+    if (leadHour < businessStartHour || leadHour >= businessEndHour) {
+      res
+        .status(400)
+        .send("Calls can only be placed during business hours of leadtimezone (9 AM to 5 PM)");
+      return;
+    }
+  }
+
   const sql = "INSERT INTO interactions SET ?";
   const newInteraction = {
     id,
     lead_id,
     date_of_interaction,
+    utcTime,
     type,
     notes,
     follow_up,
@@ -51,26 +71,46 @@ const addInteraction = async (req, res) => {
     order_value,
     assigned_kam_id,
   };
-  console.log(newInteraction)
+
   try {
-    await db.query("INSERT INTO interactions SET ?", newInteraction);
+    await db.query(sql, newInteraction);
 
     if (type === "Call") {
-      // Update last_call_date and next_call_date for the lead
+      // Calculate next_call_date within business hours
+      let nextCallDate = moment()
+        .tz(leadTimezone)
+        .add(req.body.call_frequency, "days")
+        .startOf("day")
+        .hour(9); // Default to 9 AM
+      const businessStartHour = 9;
+      const businessEndHour = 17;
+
+      // Adjust if the calculated time is outside business hours
+      const calculatedHour = nextCallDate.hour();
+      if (calculatedHour < businessStartHour) {
+        nextCallDate.hour(businessStartHour);
+      } else if (calculatedHour >= businessEndHour) {
+        nextCallDate.add(1, "day").hour(businessStartHour);
+      }
+
+      const nextCallDateUTC = nextCallDate.utc().format("YYYY-MM-DDTHH:mm:ssZ");
+
       const leadSql = `
         UPDATE leads
-        SET last_call_date = ?, next_call_date = DATE_ADD(?, INTERVAL call_frequency DAY), status = 'Active'
+        SET last_call_date = ?, next_call_date = ?, status = 'Active'
         WHERE id = ? AND assigned_kam_id = ?`;
       await db.query(leadSql, [
         date_of_interaction,
-        date_of_interaction,
+        nextCallDateUTC,
         lead_id,
         assigned_kam_id,
       ]);
     }
+
     if (type === "Order") {
-      const ordersSql = `INSERT INTO orders (id,lead_id, order_date, order_value, assigned_kam_id)
-      VALUES (?, ?, ?, ?,?)`;
+      const ordersSql = `
+        INSERT INTO orders (id, lead_id, order_date, order_value, assigned_kam_id)
+        VALUES (?, ?, ?, ?, ?)`;
       const order_id = uuidv4();
       await db.query(ordersSql, [
         order_id,
@@ -80,7 +120,7 @@ const addInteraction = async (req, res) => {
         assigned_kam_id,
       ]);
     }
-    
+
     res.status(201).send(newInteraction);
   } catch (error) {
     console.error("Error adding interaction:", error);
@@ -98,7 +138,7 @@ const getInteractionsByLeadId = async (req, res) => {
   const sql =
     "SELECT * FROM interactions WHERE lead_id = ? AND assigned_kam_id = ?";
   const result = await db.query(sql, [lead_id, assigned_kam_id]);
-  console.log(result)
+  console.log(result);
   if (result.length === 0) {
     res.status(404).send("Interactions not found for this lead");
     return;

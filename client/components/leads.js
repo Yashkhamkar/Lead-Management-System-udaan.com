@@ -23,6 +23,25 @@ export default function renderLeads(container) {
           <div class="form-group">
             <input type="number" id="leadFreq" placeholder="Call Frequency (Days)" min="1">
           </div>
+          <div class="form-group">
+            <input
+              list="timezoneOptions"
+              id="leadTz"
+              placeholder="Select or type a timezone"
+              required
+            />
+            <datalist id="timezoneOptions">
+              <option value="America/New_York">America/New_York</option>
+              <option value="America/Chicago">America/Chicago</option>
+              <option value="America/Denver">America/Denver</option>
+              <option value="America/Los_Angeles">America/Los_Angeles</option>
+              <option value="Europe/London">Europe/London</option>
+              <option value="Europe/Berlin">Europe/Berlin</option>
+              <option value="Asia/Kolkata">Asia/Kolkata</option>
+              <option value="Asia/Tokyo">Asia/Tokyo</option>
+              <option value="Australia/Sydney">Australia/Sydney</option>
+            </datalist>
+          </div>
           <button type="button" id="addLeadButton" class="btn-primary">Add Lead</button>
         </form>
       </section>
@@ -40,11 +59,19 @@ export default function renderLeads(container) {
         .getElementById("leadContact")
         .value.trim();
       const call_frequency = document.getElementById("leadFreq").value;
-
+      const lead_timezone = document.getElementById("leadTz").value;
       const token = localStorage.getItem("token");
 
-      if (!name || !address || !contact_number) {
+      if (!name || !address || !contact_number || !lead_timezone) {
         alert("Please fill in all required fields.");
+        return;
+      }
+      if (
+        !Intl.DateTimeFormat()
+          .resolvedOptions()
+          .timeZone.includes(lead_timezone)
+      ) {
+        alert("Timezone is invalid.");
         return;
       }
 
@@ -60,6 +87,7 @@ export default function renderLeads(container) {
             address,
             contact_number,
             call_frequency,
+            lead_timezone,
           }),
         });
 

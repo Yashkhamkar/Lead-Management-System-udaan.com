@@ -1,4 +1,5 @@
 const API_BASE = "https://kam-backend-phi.vercel.app/api";
+// const API_BASE = "http://localhost:5000/api";
 
 export default function renderCallsToday(container) {
   container.innerHTML = `
@@ -15,9 +16,10 @@ export default function renderCallsToday(container) {
       const response = await fetch(`${API_BASE}/contacts/todaysCalls`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+      console.log(response);
       if (response.ok) {
-        const leads = await response.json();
+        const data = await response.json();
+        const leads = data.leads; // Access the 'leads' array from the response
         console.log(leads);
         const callTodayList = document.getElementById("callTodayList");
         callTodayList.innerHTML = "";
@@ -32,18 +34,10 @@ export default function renderCallsToday(container) {
           li.innerHTML = `
             <div>
               <strong>${lead.name}</strong>
-              <p><strong>Last Call Date & Time:</strong> ${
-                lead.last_call_date
-                  ? formatDateTime(lead.last_call_date)
-                  : "Not Available"
-              }</p>
-              <p><strong>Today's Call Time:</strong> ${
-                lead.next_call_date
-                  ? formatTime(lead.next_call_date)
-                  : "Not Available"
-              }</p>
               <p><strong>Contact:</strong> ${lead.contact_number}</p>
-              <p><strong>Status:</strong> ${lead.status}</p>
+              <p><strong>Contact within this Time Range:</strong> ${
+                formatTime(lead.available_time_range.start_time)
+              } - ${formatTime(lead.available_time_range.end_time)}</p>
             </div>
           `;
           callTodayList.appendChild(li);
@@ -57,34 +51,13 @@ export default function renderCallsToday(container) {
     }
   }
 
-  // Function to format date and time (YYYY-MM-DD HH:MM:SS AM/PM) for Last Call
-  function formatDateTime(dateString) {
-    const date = new Date(dateString);
-
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
-
-    let hours = date.getUTCHours();
-    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
-
-    const amPm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12; // Convert to 12-hour format
-
-    return `${year}-${month}-${day} ${String(hours).padStart(
-      2,
-      "0"
-    )}:${minutes}:${seconds} ${amPm}`;
-  }
-
-  // Function to extract time only (HH:MM:SS AM/PM) for Today's Call
+  // Function to format time (YYYY-MM-DD HH:MM:SS AM/PM)
   function formatTime(dateString) {
     const date = new Date(dateString);
 
-    let hours = date.getUTCHours();
-    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-    const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
 
     const amPm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12; // Convert to 12-hour format

@@ -1,6 +1,6 @@
 const connection = require("../utils/db");
 const { v4: uuidv4 } = require("uuid");
-
+const moment = require("moment-timezone");
 const addContact = async (req, res) => {
   const id = uuidv4();
   const { lead_id, name, role, phone_number, email } = req.body;
@@ -87,38 +87,81 @@ const updateContact = async (req, res) => {
 };
 
 const getLeadsRequiringCallsToday = async (req, res) => {
-  const assigned_kam_id = req.user.id; // Get the KAM ID from the logged-in user
-  const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
-  
-  const sql = `
-        SELECT 
-          id, 
-          name, 
-          contact_number, 
-          status, 
-          last_call_date, 
-          next_call_date
-        FROM leads
-        WHERE assigned_kam_id = ? 
-          AND DATE(next_call_date) = DATE(?) 
-        ORDER BY next_call_date
-      `;
+  const assigned_kam_id = req.user.id;
 
   try {
-    const results = await connection.query(sql, [assigned_kam_id, today]);
+    // Fetch all leads assigned to the KAM
+    const leadsQuery = `
+      SELECT id, name, contact_number, timezone, next_call_date
+      FROM leads
+      WHERE assigned_kam_id = ?
+    `;
+    const leads = await connection.query(leadsQuery, [assigned_kam_id]);
 
-    if (results.length === 0) {
-      res.status(200).send([]); // No leads requiring calls today
+    if (!leads || leads.length === 0) {
+      res.status(200).send({
+        message: "No leads found",
+        leads: [],
+      });
       return;
     }
 
-    res.status(200).send(results);
+    const businessStartHour = 9; // 9 AM
+    const businessEndHour = 17; // 5 PM
+    const kamTimezone = "Asia/Kolkata"; // KAM's timezone
+
+    // Build the response for each lead
+    const responseLeads = leads
+      .map((lead) => {
+        if (!lead.next_call_date) {
+          return null; // Skip leads without a next_call_date
+        }
+
+        const leadTimezone = lead.timezone;
+        // Compare the date part of next_call_date with today's date in the lead's timezone
+        const nextCallDate = moment(lead.next_call_date).startOf("day");
+        const today = moment().startOf("day");
+
+        if (!nextCallDate.isSame(today, "day")) {
+          return null; // Skip if next_call_date is not today
+        }
+
+        // Calculate business hours for the lead in their timezone
+        const startTime = moment()
+          .tz(leadTimezone)
+          .startOf("day")
+          .hour(businessStartHour);
+        const endTime = moment()
+          .tz(leadTimezone)
+          .startOf("day")
+          .hour(businessEndHour);
+
+        const startTimeInKamTimezone = startTime.clone().tz(kamTimezone);
+        const endTimeInKamTimezone = endTime.clone().tz(kamTimezone);
+        
+        return {
+          id: lead.id,
+          name: lead.name,
+          contact_number: lead.contact_number,
+          lead_timezone: leadTimezone,
+          requires_call_today: true,
+          available_time_range: {
+            start_time: startTimeInKamTimezone.format("YYYY-MM-DD HH:mm:ss"),
+            end_time: endTimeInKamTimezone.format("YYYY-MM-DD HH:mm:ss"),
+          },
+        };
+      })
+      .filter((lead) => lead !== null); // Remove null leads
+
+    res.status(200).send({
+      message: "Today's calls retrieved successfully",
+      leads: responseLeads,
+    });
   } catch (error) {
-    console.error("Error fetching leads requiring calls today:", error);
-    res.status(500).send("Failed to fetch leads requiring calls today.");
+    console.error("Error fetching today's calls:", error);
+    res.status(500).send("Failed to fetch today's calls.");
   }
 };
-
 
 module.exports = {
   addContact,

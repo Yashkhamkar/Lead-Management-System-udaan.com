@@ -1,4 +1,5 @@
 const API_BASE = "https://kam-backend-phi.vercel.app/api";
+// const API_BASE = "http://localhost:5000/api";/
 
 export default function renderInteractions(container) {
   container.innerHTML = `
@@ -12,6 +13,9 @@ export default function renderInteractions(container) {
     <input type="text" id="interactionNotes" placeholder="Notes">
     <input type="number" id="interactionDuration" placeholder="Duration (in minutes)">
     <input type="number" id="interactionOrderValue" placeholder="Order value (optional)">
+    <select id="interactionTimezone">
+      <option value="" disabled selected>Fetching lead's timezone...</option>
+    </select>
     <select id="interactionFollowUp">
       <option value="true">Follow-Up Required</option>
       <option value="false">No Follow-Up Required</option>
@@ -24,84 +28,25 @@ export default function renderInteractions(container) {
     .addEventListener("click", fetchInteractions);
 
   document
+    .getElementById("interactionLead")
+    .addEventListener("blur", fetchLeadTimezone);
+
+  document
     .getElementById("addInteractionButton")
-    .addEventListener("click", async () => {
-      const lead_id = document.getElementById("interactionLead").value;
-      const type = document.getElementById("interactionType").value;
-      const notes = document.getElementById("interactionNotes").value;
-      const follow_up =
-        document.getElementById("interactionFollowUp").value === "true";
-      const call_duration = document.getElementById(
-        "interactionDuration"
-      ).value;
-      const order_value = document.getElementById(
-        "interactionOrderValue"
-      ).value;
-
-      // Retrieve the user's device timezone
-      const leadTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-      const token = localStorage.getItem("token");
-
-      if (!lead_id || !type || !notes ) {
-        alert("Please fill in all required fields.");
-        return;
-      }
-      if(!leadTimezone){
-        alert("Failed to get timezone. Please check your device settings.");
-        return;
-      }
-      console.log(leadTimezone);
-      if (type === "Call" && (!call_duration || call_duration <= 0)) {
-        alert("Call duration must be positive for calls");
-        return;
-      }
-      if (type === "Order" && (!order_value || order_value <= 0)) {
-        alert("Order value must be positive for orders");
-        return;
-      }
-      try {
-        const response = await fetch(`${API_BASE}/interactions`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            lead_id,
-            type,
-            notes,
-            follow_up,
-            leadTimezone,
-            call_duration,
-            order_value,
-          }),
-        });
-
-        if (response.ok) {
-          alert("Interaction added!");
-        } else {
-          const errorText = await response.text();
-          alert(errorText);
-        }
-      } catch (error) {
-        console.error("Error adding interaction:", error);
-      }
-    });
+    .addEventListener("click", addInteraction);
 
   async function fetchInteractions() {
-    const lead_id = document.getElementById("interactionLeadId").value;
+    const lead_id = document.getElementById("interactionLeadId").value.trim();
     const token = localStorage.getItem("token");
     if (!lead_id) {
       alert("Please enter a lead ID.");
       return;
     }
-    
+
     try {
       const response = await fetch(`${API_BASE}/interactions/${lead_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(response);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -130,18 +75,108 @@ export default function renderInteractions(container) {
         const formattedMinutes = minutes.toString().padStart(2, "0");
         const formattedTime = `${formattedHours}:${formattedMinutes} ${period}`;
 
-        // Manually format the date to 12-hour format
-
         const li = document.createElement("li");
         li.textContent = `${
           interaction.type
-        } on ${formattedDate} at  ${formattedTime} (Follow-Up: ${
+        } on ${formattedDate} at ${formattedTime} (Follow-Up: ${
           interaction.follow_up ? "Yes" : "No"
         }) - ${interaction.notes}`;
         interactionList.appendChild(li);
       });
     } catch (error) {
       console.error("Error fetching interactions:", error);
+    }
+  }
+
+  async function fetchLeadTimezone() {
+    const leadId = document.getElementById("interactionLead").value.trim();
+    const token = localStorage.getItem("token");
+
+    if (!leadId) {
+      alert("Please enter a valid Lead ID.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/leads/getLead/${leadId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("Response:", response);
+      if (!response.ok) {
+        const errorText = await response.text();
+        alert(errorText);
+        return;
+      }
+
+      const lead = await response.json();
+      const leadTimezoneSelect = document.getElementById("interactionTimezone");
+
+      // Set the lead's timezone in the dropdown
+      leadTimezoneSelect.innerHTML = `<option value="${lead.timezone}">${lead.timezone}</option>`;
+      leadTimezoneSelect.disabled = true; // Disable to prevent changes
+    } catch (error) {
+      console.error("Error fetching lead details:", error);
+    }
+  }
+
+  async function addInteraction() {
+    const lead_id = document.getElementById("interactionLead").value.trim();
+    const type = document.getElementById("interactionType").value.trim();
+    const notes = document.getElementById("interactionNotes").value.trim();
+    const follow_up =
+      document.getElementById("interactionFollowUp").value === "true";
+    const call_duration = document
+      .getElementById("interactionDuration")
+      .value.trim();
+    const order_value = document
+      .getElementById("interactionOrderValue")
+      .value.trim();
+    const leadTimezone = document.getElementById("interactionTimezone").value;
+
+    const token = localStorage.getItem("token");
+
+    if (!lead_id || !type || !notes || !leadTimezone) {
+      alert("Please fill in all required fields, including timezone.");
+      return;
+    }
+
+    if (type === "Call" && (!call_duration || call_duration <= 0)) {
+      alert("Call duration must be positive for calls");
+      return;
+    }
+    if (type === "Order" && (!order_value || order_value <= 0)) {
+      alert("Order value must be positive for orders");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/interactions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          lead_id,
+          type,
+          notes,
+          follow_up,
+          leadTimezone,
+          call_duration,
+          order_value,
+        }),
+      });
+
+      if (response.ok) {
+        alert("Interaction added!");
+      } else {
+        const errorText = await response.text();
+        alert(errorText);
+      }
+    } catch (error) {
+      console.error("Error adding interaction:", error);
     }
   }
 }
